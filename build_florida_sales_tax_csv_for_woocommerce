@@ -1,7 +1,7 @@
 #!/bin/bash
 
-YEAR=2020
-PDF=https://floridarevenue.com/Documents/dr15DSS_%20r11_19.pdf
+YEAR=2021
+PDF=https://floridarevenue.com/Forms_library/current/dr15dss.pdf
 
 # Requirements for Mac OS (using brew)
 #   brew install wget q poppler
@@ -45,8 +45,23 @@ if [[ ! -f 2_DEPT_OF_REVENUE_SURTAX_DOCUMENT.txt ]]; then
   # fetch the Florida discretionary sales surtax PDF from the Florida Dept of Revenue for the selected year
   wget -q "$PDF" -O surtax.pdf
 
+  # Added this to get decent text from Florida's website but it did not work, maybe a future version of the document will be decent?
+  ocrmypdf --force surtax.pdf rasterized.pdf
+
   # convert it to text as best we can; this is always dicey
-  pdftotext -layout -l 1 surtax.pdf 2_DEPT_OF_REVENUE_SURTAX_DOCUMENT.txt
+  pdftotext -layout -l 1 rasterized.pdf 2_DEPT_OF_REVENUE_SURTAX_DOCUMENT.txt
+
+#  sed -i 's/ afayette/Lafayette/' 2_DEPT_OF_REVENUE_SURTAX_DOCUMENT.txt
+#  sed -i 's/ iberty/Liberty/' 2_DEPT_OF_REVENUE_SURTAX_DOCUMENT.txt
+#  sed -i 's/ ianatee/Manatee/' 2_DEPT_OF_REVENUE_SURTAX_DOCUMENT.txt
+#  sed -i 's/ marion/ Marion/' 2_DEPT_OF_REVENUE_SURTAX_DOCUMENT.txt
+#  sed -i 's/ wartin/ Martin/' 2_DEPT_OF_REVENUE_SURTAX_DOCUMENT.txt
+#  sed -i 's/Wiami-Dade/Miami-Dade/' 2_DEPT_OF_REVENUE_SURTAX_DOCUMENT.txt
+#  sed -i 's/Qkeechobee/Okeechobee/' 2_DEPT_OF_REVENUE_SURTAX_DOCUMENT.txt
+
+#  pdf2image -l 1 surtax.pdf rasterized
+
+#  tesseract rasterized_1.png 2_DEPT_OF_REVENUE_SURTAX_DOCUMENT -c preserve_interword_spaces=1
 
   if [ ! $DEBUG ]; then
     rm surtax.pdf > /dev/null 2>&1
@@ -59,13 +74,18 @@ if [[ ! -f 3_COUNTY_SURTAX_RATES.txt ]]; then
   # find first line and last line of tabular county data
   ALACHUA=$(awk '/Alachua/{ print NR; exit }' 2_DEPT_OF_REVENUE_SURTAX_DOCUMENT.txt)
   WASHINGTON=$(awk '/Washington/{ print NR; exit }' 2_DEPT_OF_REVENUE_SURTAX_DOCUMENT.txt)
-  LAFAYETTE=$(awk '/Lafayette/{ print NR; exit }' 2_DEPT_OF_REVENUE_SURTAX_DOCUMENT.txt)
+  # This is the last county of the first column
+  JACKSON=$(awk '/Jackson/{ print NR; exit }' 2_DEPT_OF_REVENUE_SURTAX_DOCUMENT.txt)
 
   START=$ALACHUA
-  END=$WASHINGTON
-  if (( $WASHINGTON < $LAFAYETTE )); then
-    END=$LAFAYETTE
+  # Washington has the surtax on the second line, so we include it
+  END=$((WASHINGTON+1))
+  if (( $WASHINGTON < $JACKSON )); then
+    END=$JACKSON
   fi
+echo "START $START"
+echo "END $END"
+echo "JACKSON $JACKSON"
 
   # remove cruft before and after table and pull out columns by offset into a comma-separated format
   # (the result is comma delimited, but spaces still pad everything - we'll trim that up later)

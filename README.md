@@ -1,8 +1,10 @@
-# WooCommerce 2020 Florida Sales Tax Table
+# WooCommerce Florida Sales Tax Table
 
-#### 2020 Florida Sales Tax Rates Importable CSV for WooCommerce
+#### Florida Sales Tax Rates Importable CSV for WooCommerce
 
 ## Why
+
+This is an attempt to make the 2021 taxes but the Florida Revenue has changed how they generate the PDF document and so pdftotext cannot get the text correctly.
 
 Retail businesses in Florida are required to collect 6% sales tax on non-exempt purchases. That means that an e-commerce business in Florida must collect sales tax on purchases made by customers in Florida. Many counties in Florida require an additional surtax to be charged on sales to customers located in that county. If this comes as a surprise, you should probably talk to your accountant. I'm not an accountant, so it wouldn't be a good idea to ask me about these things.
 
